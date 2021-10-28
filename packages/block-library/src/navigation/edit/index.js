@@ -74,7 +74,6 @@ function detectColors( colorsDetectionElement, setColor, setBackground ) {
 function Navigation( {
 	attributes,
 	setAttributes,
-	isSelected,
 	clientId,
 	className,
 	backgroundColor,
@@ -127,6 +126,7 @@ function Navigation( {
 		isNavigationMenuMissing,
 		canSwitchNavigationMenu,
 		hasResolvedNavigationMenu,
+		navigationMenus,
 	} = useNavigationMenu( navigationMenuId );
 
 	const navRef = useRef();
@@ -203,7 +203,7 @@ function Navigation( {
 	// If the block has inner blocks, but no menu id, this was an older
 	// navigation block added before the block used a wp_navigation entity.
 	// Consider this 'unsaved'. Offer an uncontrolled version of inner blocks,
-	// with a prompt to 'save'.
+	// that automatically saves the menu.
 	const hasUnsavedBlocks =
 		hasExistingNavItems && navigationMenuId === undefined;
 	if ( hasUnsavedBlocks ) {
@@ -211,7 +211,8 @@ function Navigation( {
 			<UnsavedInnerBlocks
 				blockProps={ blockProps }
 				blocks={ innerBlocks }
-				isSelected={ isSelected }
+				clientId={ clientId }
+				navigationMenus={ navigationMenus }
 				onSave={ ( post ) =>
 					setAttributes( { navigationMenuId: post.id } )
 				}
