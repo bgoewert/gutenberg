@@ -28,7 +28,11 @@ export default function useNavigationMenu( navigationMenuId ) {
 				  )
 				: false;
 
-			const navigationMenuMultipleArgs = [ 'postType', 'wp_navigation' ];
+			const navigationMenuMultipleArgs = [
+				'postType',
+				'wp_navigation',
+				{ per_page: -1 },
+			];
 			const navigationMenus = getEntityRecords(
 				...navigationMenuMultipleArgs
 			);
