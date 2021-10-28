@@ -218,7 +218,12 @@
 		"webpack-bundle-analyzer": "4.4.2",
 		"worker-farm": "1.7.0"
 	},
+	"resolutions": {
+		"@jest/create-cache-key-function": "27.0.1",
+		"react-native/@jest/create-cache-key-function": "27.0.1"
+	},
 	"scripts": {
+		"preinstall": "npx npm-force-resolutions",
 		"analyze-bundles": "npm run build -- --webpack-bundle-analyzer",
 		"clean:packages": "rimraf \"./packages/*/@(build|build-module|build-style)\"",
 		"clean:package-types": "tsc --build --clean",
