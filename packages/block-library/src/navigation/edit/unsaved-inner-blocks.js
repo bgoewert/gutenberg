@@ -1,28 +1,21 @@
 /**
  * WordPress dependencies
  */
-import {
-	__experimentalUseInnerBlocksProps as useInnerBlocksProps,
-	store as blockEditorStore,
-} from '@wordpress/block-editor';
+import { __experimentalUseInnerBlocksProps as useInnerBlocksProps } from '@wordpress/block-editor';
 import { serialize } from '@wordpress/blocks';
 import { Disabled } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useContext, useEffect, useRef } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import useNavigationMenu from '../use-navigation-menu';
 
-export default function UnsavedInnerBlocks( {
-	blockProps,
-	blocks,
-	clientId,
-	onSave,
-} ) {
+export default function UnsavedInnerBlocks( { blockProps, blocks, onSave } ) {
+	const isDisabled = useContext( Disabled.Context );
 	const { hasResolvedNavigationMenus, navigationMenus } = useNavigationMenu();
 	const savingLock = useRef( false );
 
@@ -31,32 +24,13 @@ export default function UnsavedInnerBlocks( {
 	} );
 	const { saveEntityRecord } = useDispatch( coreStore );
 
-	const { isSaving, templatePartArea } = useSelect(
-		( select ) => {
-			const isAscendingSearch = true;
-			const parents = select(
-				blockEditorStore
-			).getBlockParentsByBlockName(
-				clientId,
-				'core/template-area',
-				isAscendingSearch
-			);
-
-			const templatePartWithArea = parents?.find( ( templatePart ) => {
-				return !! templatePart?.attributes.area;
-			} );
-
-			return {
-				isSaving: select( coreStore ).isSavingEntityRecord(
-					'postType',
-					'wp_naviation'
-				),
-				area: templatePartWithArea
-					? templatePartWithArea.attributes.area
-					: undefined,
-			};
-		},
-		[ clientId ]
+	const isSaving = useSelect(
+		( select ) =>
+			select( coreStore ).isSavingEntityRecord(
+				'postType',
+				'wp_naviation'
+			),
+		[]
 	);
 
 	const createNavigationMenu = useCallback(
@@ -77,8 +51,6 @@ export default function UnsavedInnerBlocks( {
 		},
 		[ blocks, serialize, saveEntityRecord ]
 	);
-
-	const isDisabled = useContext( Disabled.Context );
 
 	// Automatically save the uncontrolled blocks.
 	useEffect( async () => {
@@ -101,16 +73,7 @@ export default function UnsavedInnerBlocks( {
 		}
 
 		savingLock.current = true;
-
-		// Use the parent template part area to provide a convenient name,
-		// e.g. Header menu.
-		const title = templatePartArea
-			? sprintf(
-					// translators: %s: The type of menu (e.g. Header, Footer).
-					__( '%s menu' ),
-					templatePartArea
-			  )
-			: __( 'Untitled menu' );
+		const title = __( 'Untitled menu' );
 
 		// Determine how many menus start with the same title.
 		const matchingMenuTitleCount = navigationMenus?.reduce(
@@ -135,7 +98,6 @@ export default function UnsavedInnerBlocks( {
 		isDisabled,
 		isSaving,
 		navigationMenus,
-		templatePartArea,
 	] );
 
 	// The uncontrolled inner blocks must be rendered. If they're not rendered,
