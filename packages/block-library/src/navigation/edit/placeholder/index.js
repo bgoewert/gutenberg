@@ -21,7 +21,7 @@ import CreateInnerBlocksStep from './create-inner-blocks-step';
 export default function Placeholder( {
 	onFinish,
 	canSwitchNavigationMenu,
-	hasResolvedNavigationMenu,
+	hasResolvedNavigationMenus,
 } ) {
 	const [ step, setStep ] = useState(
 		PLACEHOLDER_STEPS.selectNavigationPost
@@ -62,7 +62,7 @@ export default function Placeholder( {
 						onFinish( navigationMenu );
 					} }
 					canSwitchNavigationMenu={ canSwitchNavigationMenu }
-					hasResolvedNavigationMenu={ hasResolvedNavigationMenu }
+					hasResolvedNavigationMenus={ hasResolvedNavigationMenus }
 				/>
 			) }
 			{ step === PLACEHOLDER_STEPS.createInnerBlocks && (

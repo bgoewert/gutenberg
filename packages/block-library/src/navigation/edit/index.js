@@ -125,7 +125,7 @@ function Navigation( {
 		isNavigationMenuResolved,
 		isNavigationMenuMissing,
 		canSwitchNavigationMenu,
-		hasResolvedNavigationMenu,
+		hasResolvedNavigationMenus,
 		navigationMenus,
 	} = useNavigationMenu( navigationMenuId );
 
@@ -411,8 +411,8 @@ function Navigation( {
 								selectBlock( clientId );
 							} }
 							canSwitchNavigationMenu={ canSwitchNavigationMenu }
-							hasResolvedNavigationMenu={
-								hasResolvedNavigationMenu
+							hasResolvedNavigationMenus={
+								hasResolvedNavigationMenus
 							}
 						/>
 					) }

@@ -9,22 +9,29 @@ import { serialize } from '@wordpress/blocks';
 import { Disabled } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useContext, useEffect } from '@wordpress/element';
+import { useCallback, useContext, useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
+import useNavigationMenu from '../use-navigation-menu';
 
 export default function UnsavedInnerBlocks( {
 	blockProps,
 	blocks,
 	clientId,
-	navigationMenus,
 	onSave,
 } ) {
+	const { hasResolvedNavigationMenus, navigationMenus } = useNavigationMenu();
+	const savingLock = useRef( false );
+
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		renderAppender: false,
 	} );
 	const { saveEntityRecord } = useDispatch( coreStore );
 
-	const templatePartArea = useSelect(
+	const { isSaving, templatePartArea } = useSelect(
 		( select ) => {
 			const isAscendingSearch = true;
 			const parents = select(
@@ -39,9 +46,15 @@ export default function UnsavedInnerBlocks( {
 				return !! templatePart?.attributes.area;
 			} );
 
-			if ( templatePartWithArea ) {
-				return templatePartWithArea.attributes.area;
-			}
+			return {
+				isSaving: select( coreStore ).isSavingEntityRecord(
+					'postType',
+					'wp_naviation'
+				),
+				area: templatePartWithArea
+					? templatePartWithArea.attributes.area
+					: undefined,
+			};
 		},
 		[ clientId ]
 	);
@@ -68,13 +81,26 @@ export default function UnsavedInnerBlocks( {
 	const isDisabled = useContext( Disabled.Context );
 
 	// Automatically save the uncontrolled blocks.
-	useEffect( () => {
+	useEffect( async () => {
 		// The block will be disabled when used in a BlockPreview.
 		// In this case avoid automatic creation of a wp_navigation post.
 		// Otherwise the user will be spammed with lots of menus!
-		if ( isDisabled ) {
+		//
+		// Also ensure other navigation menus have loaded so an
+		// accurate name can be created.
+		//
+		// And finally don't try saving when another save is already
+		// in progress.
+		if (
+			isDisabled ||
+			isSaving ||
+			savingLock.current ||
+			! hasResolvedNavigationMenus
+		) {
 			return;
 		}
+
+		savingLock.current = true;
 
 		// Use the parent template part area to provide a convenient name,
 		// e.g. Header menu.
@@ -87,9 +113,9 @@ export default function UnsavedInnerBlocks( {
 			: __( 'Untitled menu' );
 
 		// Determine how many menus start with the same title.
-		const matchingMenuTitleCount = navigationMenus.reduce(
+		const matchingMenuTitleCount = navigationMenus?.reduce(
 			( count, menu ) =>
-				menu?.title?.startsWith( title ) ? count + 1 : count,
+				menu?.title?.raw?.startsWith( title ) ? count + 1 : count,
 			0
 		);
 
@@ -97,16 +123,19 @@ export default function UnsavedInnerBlocks( {
 		// the same name exists.
 		const titleWithCount =
 			matchingMenuTitleCount > 0
-				? `${ title } ${ matchingMenuTitleCount }`
+				? `${ title } ${ matchingMenuTitleCount + 1 }`
 				: title;
 
-		const menu = createNavigationMenu( titleWithCount );
+		const menu = await createNavigationMenu( titleWithCount );
+		savingLock.current = false;
 		onSave( menu );
 	}, [
-		isDisabled,
 		createNavigationMenu,
-		templatePartArea,
+		hasResolvedNavigationMenus,
+		isDisabled,
+		isSaving,
 		navigationMenus,
+		templatePartArea,
 	] );
 
 	// The uncontrolled inner blocks must be rendered. If they're not rendered,

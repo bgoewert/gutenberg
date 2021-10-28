@@ -15,7 +15,7 @@ import NavigationMenuNameModal from '../navigation-menu-name-modal';
 
 export default function SelectNavigationMenuStep( {
 	canSwitchNavigationMenu,
-	hasResolvedNavigationMenu,
+	hasResolvedNavigationMenus,
 	onCreateNew,
 	onSelectExisting,
 } ) {
@@ -25,8 +25,8 @@ export default function SelectNavigationMenuStep( {
 
 	return (
 		<>
-			{ ! hasResolvedNavigationMenu && <PlaceholderPreview isLoading /> }
-			{ hasResolvedNavigationMenu && (
+			{ ! hasResolvedNavigationMenus && <PlaceholderPreview isLoading /> }
+			{ hasResolvedNavigationMenus && (
 				<Placeholder
 					icon={ navigationIcon }
 					label={ __( 'Navigation' ) }

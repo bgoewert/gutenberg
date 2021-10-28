@@ -42,7 +42,7 @@ export default function useNavigationMenu( navigationMenuId ) {
 				isNavigationMenuMissing:
 					hasResolvedNavigationMenu && ! navigationMenu,
 				canSwitchNavigationMenu,
-				hasResolvedNavigationMenu: hasFinishedResolution(
+				hasResolvedNavigationMenus: hasFinishedResolution(
 					'getEntityRecords',
 					navigationMenuMultipleArgs
 				),
