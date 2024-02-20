@@ -24,7 +24,7 @@ module.exports = async function stop( { spinner, debug } ) {
 
 	spinner.text = 'Stopping WordPress.';
 
-	await dockerCompose.down( {
+	await dockerCompose.downOne( {
 		config: dockerComposeConfigPath,
 		log: debug,
 	} );
